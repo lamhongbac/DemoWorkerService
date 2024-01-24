@@ -1,45 +1,54 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace DemoWorkerService
 {
+    public interface IJob
+    {
+        string Title { get; set; }
+        Task DoJob();
+    }
     public class JobA : IJob
     {
         private static int time = 0;
         public string Title { get; set; }
-        public JobA()
+        public JobA(ILogger<JobA> logger)
         {
             Title = "Job A";
+            _logger = logger;
         }
-
-        public virtual async Task DoJob()
+        private readonly ILogger<JobA> _logger;
+        public  async Task DoJob()
         {
             time++;
             string message = string.Format("Job {0} run  {1} time, At{2}",Title, time,DateTime.Now.TimeOfDay);
             Console.WriteLine(message);
+            Debug.WriteLine(message);
+            _logger.LogDebug(message);
         }
     }
-    public class JobB : JobA
+    public class JobB : IJob
     {
-        
-        public JobB():base() 
+        private static int time = 0;
+        public string Title { get; set; }
+        private readonly ILogger<JobB> _logger;
+        public JobB(ILogger<JobB> _logger) 
         {
             Title = "Job B";
         }
-
-        
-    }
-    public class JobC : JobA
-    {
-        private static int time = 0;
-        public JobC()
+        public async Task DoJob()
         {
-            Title = "Job C";
+            time++;
+            string message = string.Format("Job {0} run  {1} time, At{2}", Title, time, DateTime.Now.TimeOfDay);
+            Console.WriteLine(message);
+            Debug.WriteLine(message);
+            _logger.LogDebug(message);
         }
 
-      
     }
+   
 }

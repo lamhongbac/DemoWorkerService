@@ -38,7 +38,7 @@ namespace DemoWorkerService
                     {
                         try
                         {
-                            await OnTimerFiredAsync(stoppingToken);
+                            await OnTimerFiredAsync(stoppingToken, task);
                         }
                         catch (Exception ex)
                         {
@@ -53,11 +53,14 @@ namespace DemoWorkerService
                 }
             }
         }
-        private async Task OnTimerFiredAsync(CancellationToken stoppingToken)
+
+        private async Task OnTimerFiredAsync(CancellationToken stoppingToken, IMyTask task)
         {
             // do your work here
-            Debug.WriteLine("Simulating heavy I/O bound work");
-            await Task.Delay(2000, stoppingToken);
+            //Debug.WriteLine("Simulating heavy I/O bound work");
+            //await Task.Delay(2000, stoppingToken);
+            IJob job= task.ToDoJob;
+            await    job.DoJob();
         }
     }
 }

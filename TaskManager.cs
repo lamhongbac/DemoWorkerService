@@ -32,7 +32,7 @@ namespace DemoWorkerService
                 EndDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
                 RepeatedType = ERepeatedType.Minute,
                 RepeatInterval = 1,
-                StartAt = new TimeSpan(17,11,59) ,
+                StartAt = new TimeSpan(17,40,59) ,
                 ToDoJob = new JobA(),
             };
             MyTask TaskB = new MyTask()
@@ -41,7 +41,7 @@ namespace DemoWorkerService
                 EndDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
                 RepeatedType = ERepeatedType.Minute,
                 RepeatInterval = 2,
-                StartAt = new TimeSpan(17, 11, 59),
+                StartAt = new TimeSpan(17, 40, 59),
                 ToDoJob = new JobB(),
             };
             MyTasks.Add(TaskA);
