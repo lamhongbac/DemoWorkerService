@@ -50,7 +50,7 @@ namespace DemoWorkerService
                 EndDate = DateTime.Now.AddDays(1),
                 RepeatedType = ERepeatedType.Minute,
                 RepeatInterval = 2,
-                StartAt = new TimeSpan(22,26,59) ,
+                StartAt = new TimeSpan(22,44,59) ,
                 ToDoJob = new JobA(),
             };
             MyTask TaskB = new MyTask()

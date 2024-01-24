@@ -9,13 +9,14 @@ namespace DemoWorkerService
 {
     public class DemoWorker : BackgroundService
     {
-       static DateTime runAt;
+        static bool firstRun = true;
+        static DateTime runAt;
         private static int SecondsUntilMidnight(IMyTask myTask)
         {
             if (myTask != null && myTask.RepeatedType== ERepeatedType.Minute) 
             {
                 //dk1
-                bool firstRun = true;
+                
                 if (DateTime.Now.Date>=myTask.BeginDate && DateTime.Now.Date <=myTask.EndDate)
                 {
                     if (firstRun)
@@ -26,7 +27,7 @@ namespace DemoWorkerService
                     }
                     else
                     {
-                        runAt.AddMinutes(myTask.RepeatInterval);
+                        runAt= runAt.AddMinutes(myTask.RepeatInterval);
                     }
                     
                     int totalSecondFromFireTime = (int)(runAt - DateTime.Now).TotalSeconds;
