@@ -8,26 +8,38 @@ namespace DemoWorkerService
 {
     public class JobA : IJob
     {
+        private static int time = 0;
+        public string Title { get; set; }
         public JobA()
         {
+            Title = "Job A";
         }
 
-        public async Task DoJob() { }
-    }
-    public class JobB : IJob
-    {
-        public JobB()
+        public virtual async Task DoJob()
         {
+            time++;
+            string message = string.Format("Job {0} run  {1} time, At{2}",Title, time,DateTime.Now.TimeOfDay);
+            Console.WriteLine(message);
+        }
+    }
+    public class JobB : JobA
+    {
+        
+        public JobB():base() 
+        {
+            Title = "Job B";
         }
 
-        public async Task DoJob() { }
+        
     }
-    public class JobC : IJob
+    public class JobC : JobA
     {
+        private static int time = 0;
         public JobC()
         {
+            Title = "Job C";
         }
 
-        public async Task DoJob() { }
+      
     }
 }
