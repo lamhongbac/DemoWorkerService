@@ -7,13 +7,31 @@ using System.Threading.Tasks;
 
 namespace DemoWorkerService
 {
+    public interface IMyTask
+    {
+        DateTime BeginDate { get; set; }
+        DateTime EndDate { get; set; }
+        ERepeatedType RepeatedType { get; set; }
+        int RepeatInterval { get; set; }
+        TimeSpan StartAt { get; set; } //new TimeSpan(h,m,s)
+        IJob ToDoJob { get; set; }
+    }
+    public enum ERepeatedType
+    {
+        Minute, Hourly, Daily, Weekly, Monthly, Yearly
+    }
+
     public class MyTask : IMyTask
     {
-        public DateOnly BeginDate { get; set; } //ngay bat dau
+        public MyTask()
+        {
+            
+        }
+        public DateTime BeginDate { get; set; } //ngay bat dau
         public ERepeatedType RepeatedType { get; set; } //minutely, hourly, daily, weekly, monthly
         public int RepeatInterval { get; set; } //30p, 22g, 1day, 1week
         public TimeSpan StartAt { get; set; } //thoi diem chay task
-        public DateOnly EndDate { get; set; } //ngay ket thuc
+        public DateTime EndDate { get; set; } //ngay ket thuc
         public IJob ToDoJob { get; set; }
     }
     public class MyTaskManager
@@ -28,20 +46,20 @@ namespace DemoWorkerService
 
             MyTask TaskA = new MyTask()
             {
-                BeginDate = DateOnly.FromDateTime(DateTime.Now),
-                EndDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+                BeginDate = DateTime.Now.AddDays(-1),
+                EndDate = DateTime.Now.AddDays(1),
                 RepeatedType = ERepeatedType.Minute,
-                RepeatInterval = 1,
-                StartAt = new TimeSpan(17,40,59) ,
+                RepeatInterval = 2,
+                StartAt = new TimeSpan(22,26,59) ,
                 ToDoJob = new JobA(),
             };
             MyTask TaskB = new MyTask()
             {
-                BeginDate = DateOnly.FromDateTime(DateTime.Now),
-                EndDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+                BeginDate = DateTime.Now.AddDays(-1),
+                EndDate = DateTime.Now.AddDays(1),
                 RepeatedType = ERepeatedType.Minute,
                 RepeatInterval = 2,
-                StartAt = new TimeSpan(17, 40, 59),
+                StartAt = new TimeSpan(22, 26, 59),
                 ToDoJob = new JobB(),
             };
             MyTasks.Add(TaskA);

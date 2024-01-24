@@ -16,27 +16,27 @@ namespace DemoWorkerService
     {
         private static int time = 0;
         public string Title { get; set; }
-        public JobA(ILogger<JobA> logger)
+        public JobA()
         {
             Title = "Job A";
-            _logger = logger;
+            
         }
-        private readonly ILogger<JobA> _logger;
+       
         public  async Task DoJob()
         {
             time++;
             string message = string.Format("Job {0} run  {1} time, At{2}",Title, time,DateTime.Now.TimeOfDay);
             Console.WriteLine(message);
-            Debug.WriteLine(message);
-            _logger.LogDebug(message);
+           // Debug.WriteLine(message);
+            //_logger.LogDebug(message);
         }
     }
     public class JobB : IJob
     {
         private static int time = 0;
         public string Title { get; set; }
-        private readonly ILogger<JobB> _logger;
-        public JobB(ILogger<JobB> _logger) 
+        //private readonly ILogger<JobB> _logger;
+        public JobB() 
         {
             Title = "Job B";
         }
@@ -46,7 +46,7 @@ namespace DemoWorkerService
             string message = string.Format("Job {0} run  {1} time, At{2}", Title, time, DateTime.Now.TimeOfDay);
             Console.WriteLine(message);
             Debug.WriteLine(message);
-            _logger.LogDebug(message);
+            //_logger.LogDebug(message);
         }
 
     }

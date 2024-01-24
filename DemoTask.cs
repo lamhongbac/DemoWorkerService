@@ -9,11 +9,32 @@ namespace DemoWorkerService
 {
     public class DemoWorker : BackgroundService
     {
+       static DateTime runAt;
         private static int SecondsUntilMidnight(IMyTask myTask)
         {
             if (myTask != null && myTask.RepeatedType== ERepeatedType.Minute) 
             {
-                return (int)(DateTime.Today.AddMinutes(myTask.RepeatInterval) - DateTime.Now).TotalSeconds;
+                //dk1
+                bool firstRun = true;
+                if (DateTime.Now.Date>=myTask.BeginDate && DateTime.Now.Date <=myTask.EndDate)
+                {
+                    if (firstRun)
+                    {
+                        runAt = DateTime.Today.AddTicks(myTask.StartAt.Ticks);
+                        firstRun = false;
+                        
+                    }
+                    else
+                    {
+                        runAt.AddMinutes(myTask.RepeatInterval);
+                    }
+                    
+                    int totalSecondFromFireTime = (int)(runAt - DateTime.Now).TotalSeconds;
+                    //return (int)(DateTime.Today.AddMinutes(myTask.RepeatInterval) - DateTime.Now).TotalSeconds;
+                    Debug.WriteLine($"Is first run: {firstRun}, run at: {runAt}");
+                    return totalSecondFromFireTime;
+
+                }
             }
             return 0;
         }
@@ -38,6 +59,7 @@ namespace DemoWorkerService
                     {
                         try
                         {
+                            runAt=DateTime.Now;
                             await OnTimerFiredAsync(stoppingToken, task);
                         }
                         catch (Exception ex)
