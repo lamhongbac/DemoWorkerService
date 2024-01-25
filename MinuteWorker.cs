@@ -25,14 +25,18 @@ namespace DemoWorkerService
             _logger = logger;
             _configuration= configuration;
             var taskSection=configuration.GetSection("ScheduleTasks");
+
             List<MyTask> tasks = taskSection.Get<List<MyTask>>();
 
+            MyTask task = tasks[0];
+
             //from config: gia su la 15h:00
-            TimeSpan timeSpan= new TimeSpan(16,21,59);
+            TimeSpan timeSpan = task.GetStartAt();
+
             startAt = DateTime.Today.AddTicks(timeSpan.Ticks);
 
             // sau 1 p chay 1 lan
-            interval = 1; 
+            interval = task.RepeatInterval; 
             
         }
         /// <summary>

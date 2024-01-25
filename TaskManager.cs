@@ -21,19 +21,34 @@ namespace DemoWorkerService
         Minute, Hourly, Daily, Weekly, Monthly, Yearly
     }
 
-    public class MyTask : IMyTask
+    public class MyTask 
     {
         public MyTask()
         {
             
         }
-        public DateTime BeginDate { get; set; } //ngay bat dau
-        public ERepeatedType RepeatedType { get; set; } //minutely, hourly, daily, weekly, monthly
+        public string BeginDate { get; set; } //ngay bat dau
+        public string RepeatedType { get; set; } //minutely, hourly, daily, weekly, monthly
         public int RepeatInterval { get; set; } //30p, 22g, 1day, 1week
-        public TimeSpan StartAt { get; set; } //thoi diem chay task
-        public DateTime EndDate { get; set; } //ngay ket thuc
+        public string StartAt { get; set; } //thoi diem chay task
+        public string EndDate { get; set; } //ngay ket thuc
         public IJob ToDoJob { get; set; }
-        
+
+        public DateTime GetBeginDate(string type)
+        {
+            DateTime dateTime = DateTime.Now;
+            if (type == "BeginDate")
+                dateTime= DateTime.Parse(BeginDate);
+            if (type == "EndDate")
+                dateTime = DateTime.Parse(EndDate);
+            return dateTime;
+        }
+        public TimeSpan GetStartAt()
+        {
+            int hours=Convert.ToInt32(StartAt.Substring(0,2));
+            int minutes = Convert.ToInt32(StartAt.Substring(1, 2));
+            return new TimeSpan(hours, minutes,0);
+        }
     }
     public class MyTaskManager
     {
