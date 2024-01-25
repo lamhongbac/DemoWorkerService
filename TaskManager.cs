@@ -38,33 +38,33 @@ namespace DemoWorkerService
     public class MyTaskManager
     {
         public List<MyTask> MyTasks { get; set; }
-        public MyTaskManager()
-        {
+        //public MyTaskManager()
+        //{
 
-            MyTasks = new List<MyTask>();
+        //    MyTasks = new List<MyTask>();
             
-            //TimeSpan hours = TimeSpan.FromHours(RepeatInterval);
+        //    //TimeSpan hours = TimeSpan.FromHours(RepeatInterval);
 
-            MyTask TaskA = new MyTask()
-            {
-                BeginDate = DateTime.Now.AddDays(-1),
-                EndDate = DateTime.Now.AddDays(1),
-                RepeatedType = ERepeatedType.Minute,
-                RepeatInterval = 2,
-                StartAt = DateTime.Now.AddSeconds(30).TimeOfDay,            
-                ToDoJob = new JobA(),
-            };
-            MyTask TaskB = new MyTask()
-            {
-                BeginDate = DateTime.Now.AddDays(-1),
-                EndDate = DateTime.Now.AddDays(1),
-                RepeatedType = ERepeatedType.Minute,
-                RepeatInterval = 2,
-                StartAt = DateTime.Now.AddMinutes(1).TimeOfDay,
-                ToDoJob = new JobB(),
-            };
-            MyTasks.Add(TaskA);
-            MyTasks.Add(TaskB);
-        }
+        //    MyTask TaskA = new MyTask()
+        //    {
+        //        BeginDate = DateTime.Now.AddDays(-1),
+        //        EndDate = DateTime.Now.AddDays(1),
+        //        RepeatedType = ERepeatedType.Minute,
+        //        RepeatInterval = 2,
+        //        StartAt = DateTime.Now.AddSeconds(30).TimeOfDay,            
+        //        ToDoJob = new JobA(),
+        //    };
+        //    MyTask TaskB = new MyTask()
+        //    {
+        //        BeginDate = DateTime.Now.AddDays(-1),
+        //        EndDate = DateTime.Now.AddDays(1),
+        //        RepeatedType = ERepeatedType.Minute,
+        //        RepeatInterval = 2,
+        //        StartAt = DateTime.Now.AddMinutes(1).TimeOfDay,
+        //        ToDoJob = new JobB(),
+        //    };
+        //    MyTasks.Add(TaskA);
+        //    MyTasks.Add(TaskB);
+        //}
     }
 }
