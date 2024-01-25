@@ -1,7 +1,7 @@
 using DemoWorkerService;
 
 var builder = Host.CreateApplicationBuilder(args);
-builder.Services.AddHostedService<DemoWorker>();
+builder.Services.AddHostedService<Worker>();
 
 var host = builder.Build();
 host.Run();
