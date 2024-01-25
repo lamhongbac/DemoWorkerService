@@ -24,11 +24,18 @@ namespace DemoWorkerService
        
         public  async Task DoJob()
         {
-            time++;
-            string message = string.Format("Job {0} run  {1} time, At{2}",Title, time,DateTime.Now.TimeOfDay);
-            Console.WriteLine(message);
-           // Debug.WriteLine(message);
-            //_logger.LogDebug(message);
+            try
+            {
+                time++;
+                var _dateTime = DateTime.Now;
+                string message = $"{Title} - lan  {time}; run  at: {_dateTime} ";
+                Console.WriteLine(message);
+
+                
+            }catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
     }
     public class JobB : IJob
@@ -44,7 +51,7 @@ namespace DemoWorkerService
         {
             time++;
             string message = string.Format("Job {0} run  {1} time, At{2}", Title, time, DateTime.Now.TimeOfDay);
-            Console.WriteLine(message);
+            //Console.WriteLine(message);
             Debug.WriteLine(message);
             //_logger.LogDebug(message);
         }

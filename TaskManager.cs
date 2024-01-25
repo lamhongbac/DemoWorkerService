@@ -33,6 +33,7 @@ namespace DemoWorkerService
         public TimeSpan StartAt { get; set; } //thoi diem chay task
         public DateTime EndDate { get; set; } //ngay ket thuc
         public IJob ToDoJob { get; set; }
+        
     }
     public class MyTaskManager
     {
@@ -50,7 +51,7 @@ namespace DemoWorkerService
                 EndDate = DateTime.Now.AddDays(1),
                 RepeatedType = ERepeatedType.Minute,
                 RepeatInterval = 2,
-                StartAt = new TimeSpan(22,44,59) ,
+                StartAt = DateTime.Now.AddSeconds(30).TimeOfDay,            
                 ToDoJob = new JobA(),
             };
             MyTask TaskB = new MyTask()
@@ -59,7 +60,7 @@ namespace DemoWorkerService
                 EndDate = DateTime.Now.AddDays(1),
                 RepeatedType = ERepeatedType.Minute,
                 RepeatInterval = 2,
-                StartAt = new TimeSpan(22, 26, 59),
+                StartAt = DateTime.Now.AddMinutes(1).TimeOfDay,
                 ToDoJob = new JobB(),
             };
             MyTasks.Add(TaskA);
