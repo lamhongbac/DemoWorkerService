@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -19,57 +19,76 @@ namespace DemoWorkerService
         static DateTime runAt;
         static DateTime startAt;
         IConfiguration _configuration;
-        int interval = 0;
+        int interval = 2;
+        static MyTask task;
+        ERepeatedType repeatedType;
         public MinuteTask(ILogger<MinuteTask> logger,IConfiguration configuration)
         {
             _logger = logger;
             _configuration= configuration;
             var taskSection=configuration.GetSection("ScheduleTasks");
-
+            //
             List<MyTask> tasks = taskSection.Get<List<MyTask>>();
+            //
+             task = tasks[0];
+            bool ok=Enum.TryParse<ERepeatedType>(task.RepeatedType, out repeatedType);
 
-            MyTask task = tasks[0];
-
-            //from config: gia su la 15h:00
-            TimeSpan timeSpan = task.GetStartAt();
-
-            startAt = DateTime.Today.AddTicks(timeSpan.Ticks);
+           //from config: gia su la 15h:00
+           TimeSpan timeSpan = task.GetStartAt();
+            
+            #if DEBUG
+                        startAt=DateTime.Now.AddMinutes(1);
+#else
+                        startAt = DateTime.Today.AddTicks(timeSpan.Ticks);
+#endif
+#if !DEBUG
+                        interval = task.RepeatInterval; 
+#endif
 
             // sau 1 p chay 1 lan
-            interval = task.RepeatInterval; 
-            
+
+            string init_message = $"Init... task startAt: {startAt}  repeatedType: {repeatedType},interval: {interval}";
+            _logger.LogInformation(init_message);
+
         }
         /// <summary>
+        /// 
+        /// Gia dinh la ngay bat dau va ket thuc thoa man dieu kien
+        /// BeginData-EndDate
         /// 
         /// </summary>
         /// <param name="stoppingToken"></param>
         /// <returns></returns>
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            firstRun = (count == 0);
-            if (firstRun)
-            {
-                //thoi diem tuong lai
+           
+                //thoi diem chay trng cau hinh truoc thoi diem service start=> move thoi diem chay qua ngay Hom sau
+                // neu thoi diem chay tron CH xay ra sau TDiem hien tai
                 if (startAt > DateTime.Now)
                 {
                     runAt = startAt;
+                
                 }
                 else
                 {
-                    runAt = startAt.AddDays(1);
+                    //xac dinh lan chay dau tien
+                    runAt = GetNextStart(startAt,repeatedType,interval);
+                
                 }
-            }
+            string runAtmessage = $"lan:{count} ,start at: {runAt}";
+            _logger.LogInformation(runAtmessage);
+
             // gia su kQ la 4g...
             while (!stoppingToken.IsCancellationRequested)
             {
-               
-                
-                
-                
-                
-                //count down se giam xuong vi Datetime now tang len, run at thi co dinh
+
+                //count down :Xac dinh TG can phai chờ theo cấu hình ex:hien dang la 3g, KQ tra ra 10, nghia la dang o thoi diem 2g59p50s no se countdown xuong 10 second de bat dau chay
+                //count down se giam xuong moi lan chay  Datetime.Now tang len, trong khi RunAt thi co dinh
 
                 var countdown = SecondsUntilFireTime(runAt);
+                string countdown_message = $"Calcualte firetime Lan: {count}  end  at {DateTime.Now}: {countdown}";
+                _logger.LogInformation(countdown_message);
+
                 //string message = $"Lan: {count} countdown: {countdown} ";
                 //Debug.WriteLine(message);
                 if (countdown-- <= 0)
@@ -81,13 +100,52 @@ namespace DemoWorkerService
                     //lan chay ke tiep tang them xxx ke tu lan chay truoc do
                     if (!firstRun)
                     {
-                        runAt = runAt.AddMinutes(interval);
+                        switch (repeatedType)
+                        {
+                            case ERepeatedType.Minute:
+                                runAt = runAt.AddMinutes(interval);
+                                break;
+                            case ERepeatedType.Hourly:
+                                runAt = runAt.AddHours(interval);
+                                break;
+                            case ERepeatedType.Daily:
+                                runAt = runAt.AddDays(interval);
+                                break;
+                            
+                        }
+                        
                     }
 
 
                 }
             }
         }
+
+        /// <summary>
+        /// neu la daily task, bi tre thi chuyen qua x ngay hom sau
+        /// neu la hourly task bi tre thi chuyen qua x gio sau
+        /// neu la minute ...
+        /// </summary>
+        /// <returns></returns>
+        private DateTime GetNextStart(DateTime configDate,ERepeatedType repeatedType, int interval)
+        {
+            DateTime runAt=DateTime.MinValue;
+            switch (repeatedType)
+            {
+                case ERepeatedType.Minute:
+                    runAt = configDate.AddMinutes(interval);
+                    break;
+                case ERepeatedType.Hourly:
+                    runAt = configDate.AddHours(interval);
+                    break;
+                case ERepeatedType.Daily:                                      
+                default:
+                    runAt = configDate.AddDays(interval);
+                    break;
+            }
+           return runAt;
+        }
+
         /// <summary>
         /// mo phong chay task
         /// </summary>
@@ -95,13 +153,15 @@ namespace DemoWorkerService
         /// <returns></returns>
         private async Task RunTask(CancellationToken stoppingToken)
         {
-            string message = $"Lan: {count} begin  at {DateTime.Now}";
-            Console.WriteLine(message);
+            string begmessage = $"RunTask Lan: {count} begin  at {DateTime.Now}";
+            _logger.LogInformation(begmessage);
+
+            Console.WriteLine(begmessage);
             await Task.Delay(1000, stoppingToken);
-             message = $"Lan: {count}  end  at {DateTime.Now}";
-            Console.WriteLine(message);
+            string endmessage = $"RunTask Lan: {count}  end  at {DateTime.Now}";
+            _logger.LogInformation(endmessage);
             //xac dinh thoi diem chay 1 lan sau khi task run
-            
+
         }
 
         /// <summary>
@@ -114,6 +174,7 @@ namespace DemoWorkerService
         private static int SecondsUntilFireTime(DateTime runAt)
         {
             int totalSecondFromFireTime = (int)(runAt - DateTime.Now).TotalSeconds;
+          
             return totalSecondFromFireTime;
         }
     }

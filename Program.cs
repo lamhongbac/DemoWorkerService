@@ -3,13 +3,39 @@ using DemoWorkerService;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using NLog;
 using NLog.Extensions.Logging;
+using NLog.Web;
 
-var builder = Host.CreateApplicationBuilder(args).ConfigureAppConfiguration();
-builder.Logging.ClearProviders();
 
-builder.
-builder.Services.AddHostedService<MinuteTask>();
+var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
+logger.Debug("init main");
+try
+{
+    var builder = Host.CreateApplicationBuilder(args);
+    //builder.Services.Configure((hostContext, logging) =>
+    //{
+    //    // ensure just use NLog
+    //    logging.Services.Clear();
+    //    logging.SetMinimumLevel(LogLevel.Trace);
 
-var host = builder.Build();
-host.Run();
+    //    //logging.AddNLog(hostContext.Configuration);
+    //    logging.AddNLog(hostContext.Configuration.GetSection("NLog"));
+    //});
+
+    //builder.Logging.ClearProviders();
+
+    builder.Services.AddHostedService<MinuteTask>();
+
+    var host = builder.Build();
+    host.Run();
+
+}
+catch(Exception ex)
+{
+    logger.Error(ex.Message);
+}
+finally
+{
+    LogManager.Shutdown();
+}

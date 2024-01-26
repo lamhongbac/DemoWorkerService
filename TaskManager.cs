@@ -16,9 +16,14 @@ namespace DemoWorkerService
         TimeSpan StartAt { get; set; } //new TimeSpan(h,m,s)
         IJob ToDoJob { get; set; }
     }
+    /// <summary>
+    /// Khong can Weekly, Monthly, Yearly
+    /// chi can daily la co the tam thoi giai quyet dc
+    /// sau nay se bo xung sau
+    /// </summary>
     public enum ERepeatedType
     {
-        Minute, Hourly, Daily, Weekly, Monthly, Yearly
+        Minute, Hourly, Daily
     }
 
     public class MyTask 
@@ -46,7 +51,7 @@ namespace DemoWorkerService
         public TimeSpan GetStartAt()
         {
             int hours=Convert.ToInt32(StartAt.Substring(0,2));
-            int minutes = Convert.ToInt32(StartAt.Substring(1, 2));
+            int minutes = Convert.ToInt32(StartAt.Substring(3, 2));
             return new TimeSpan(hours, minutes,0);
         }
     }

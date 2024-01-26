@@ -19,7 +19,7 @@ namespace DemoWorkerService
 
         public Task StartAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Timed Hosted Service running.");
+            _logger.LogDebug("Timed Hosted Service running.");
 
             _timer = new Timer(DoWork, null, TimeSpan.Zero,
                 TimeSpan.FromSeconds(5));
@@ -31,7 +31,7 @@ namespace DemoWorkerService
         {
             var count = Interlocked.Increment(ref executionCount);
 
-            _logger.LogInformation(
+            _logger.LogDebug(
                 "Timed Hosted Service is working. Count: {Count}", count);
         }
 
