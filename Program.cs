@@ -1,5 +1,5 @@
 using DemoWorkerService;
-
+using DemoWorkerService.Jobs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -24,7 +24,15 @@ try
     //});
 
     //builder.Logging.ClearProviders();
+    
+    builder.Logging.ClearProviders();
+    builder.Logging.AddConsole();
+    builder.Logging.AddConsole();
+    builder.Logging.AddDebug();
+    builder.Logging.AddEventSourceLogger();
+    builder.Logging.AddNLog();
 
+    builder.Services.AddSingleton<IJob,CheckNewMember>();
     builder.Services.AddHostedService<MinuteTask>();
 
     var host = builder.Build();

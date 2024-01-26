@@ -10,16 +10,18 @@ namespace DemoWorkerService
     public interface IJob
     {
         string Title { get; set; }
+        string JobID { get; set; }
         Task DoJob();
     }
     public class JobA : IJob
     {
         private static int time = 0;
         public string Title { get; set; }
+        public string JobID { get; set; }
         public JobA()
         {
             Title = "Job A";
-            
+            JobID = Title;
         }
        
         public  async Task DoJob()
@@ -40,6 +42,7 @@ namespace DemoWorkerService
     }
     public class JobB : IJob
     {
+        public string JobID { get; set; }
         private static int time = 0;
         public string Title { get; set; }
         //private readonly ILogger<JobB> _logger;

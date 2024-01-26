@@ -26,9 +26,9 @@ namespace DemoWorkerService
         Minute, Hourly, Daily
     }
 
-    public class MyTask 
+    public class TaskConfiguration 
     {
-        public MyTask()
+        public TaskConfiguration()
         {
             
         }
@@ -37,7 +37,8 @@ namespace DemoWorkerService
         public int RepeatInterval { get; set; } //30p, 22g, 1day, 1week
         public string StartAt { get; set; } //thoi diem chay task
         public string EndDate { get; set; } //ngay ket thuc
-        public IJob ToDoJob { get; set; }
+
+        public string ToDoJob { get; set; }
 
         public DateTime GetBeginDate(string type)
         {
@@ -55,9 +56,9 @@ namespace DemoWorkerService
             return new TimeSpan(hours, minutes,0);
         }
     }
-    public class MyTaskManager
+    public class ScheduleManager
     {
-        public List<MyTask> MyTasks { get; set; }
+        public List<TaskConfiguration> TaskConfigs { get; set; }
         //public MyTaskManager()
         //{
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using DemoWorkerService.Jobs;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,6 +14,7 @@ namespace DemoWorkerService
     /// </summary>
     public class MinuteTask : BackgroundService
     {
+        bool taskAvailable = false;
         static int count = 0;
         static bool firstRun=true;
         private readonly ILogger<MinuteTask> _logger;
@@ -20,36 +22,46 @@ namespace DemoWorkerService
         static DateTime startAt;
         IConfiguration _configuration;
         int interval = 2;
-        static MyTask task;
+        static TaskConfiguration task;
         ERepeatedType repeatedType;
-        public MinuteTask(ILogger<MinuteTask> logger,IConfiguration configuration)
+        IJob _todoJob;
+        public MinuteTask(ILogger<MinuteTask> logger,IConfiguration configuration, IJob job)
         {
+            _todoJob = job;
             _logger = logger;
             _configuration= configuration;
             var taskSection=configuration.GetSection("ScheduleTasks");
             //
-            List<MyTask> tasks = taskSection.Get<List<MyTask>>();
+            List<TaskConfiguration> configurations = taskSection.Get<List<TaskConfiguration>>();
             //
-             task = tasks[0];
-            bool ok=Enum.TryParse<ERepeatedType>(task.RepeatedType, out repeatedType);
+            task = configurations.FirstOrDefault(x => x.ToDoJob == job.JobID);
+            taskAvailable = task != null;
+            if (taskAvailable)
+            {
+                bool ok = Enum.TryParse<ERepeatedType>(task.RepeatedType, out repeatedType);
 
-           //from config: gia su la 15h:00
-           TimeSpan timeSpan = task.GetStartAt();
-            
-            #if DEBUG
-                        startAt=DateTime.Now.AddMinutes(1);
+                //from config: gia su la 15h:00
+                TimeSpan timeSpan = task.GetStartAt();
+
+#if DEBUG
+                startAt = DateTime.Now.AddMinutes(1);
 #else
                         startAt = DateTime.Today.AddTicks(timeSpan.Ticks);
 #endif
-#if !DEBUG
+
                         interval = task.RepeatInterval; 
-#endif
 
-            // sau 1 p chay 1 lan
 
-            string init_message = $"Init... task startAt: {startAt}  repeatedType: {repeatedType},interval: {interval}";
-            _logger.LogInformation(init_message);
+                // sau 1 p chay 1 lan
 
+                string init_message = $"Init... task startAt: {startAt}  repeatedType: {repeatedType},interval: {interval}";
+                _logger.LogInformation(init_message);
+            }
+            else
+            {
+                string init_message = $"Task is not available";
+                _logger.LogError(init_message);
+            }
         }
         /// <summary>
         /// 
@@ -86,11 +98,10 @@ namespace DemoWorkerService
                 //count down se giam xuong moi lan chay  Datetime.Now tang len, trong khi RunAt thi co dinh
 
                 var countdown = SecondsUntilFireTime(runAt);
-                string countdown_message = $"Calcualte firetime Lan: {count}  end  at {DateTime.Now}: {countdown}";
-                _logger.LogInformation(countdown_message);
+                //string countdown_message = $"Calcualte firetime Lan: {count}  end  at {DateTime.Now}: {countdown}";
+                //_logger.LogInformation(countdown_message);
 
-                //string message = $"Lan: {count} countdown: {countdown} ";
-                //Debug.WriteLine(message);
+                
                 if (countdown-- <= 0)
                 {
                     count++;
@@ -156,8 +167,9 @@ namespace DemoWorkerService
             string begmessage = $"RunTask Lan: {count} begin  at {DateTime.Now}";
             _logger.LogInformation(begmessage);
 
-            Console.WriteLine(begmessage);
-            await Task.Delay(1000, stoppingToken);
+            //await Task.Delay(1000, stoppingToken);
+            await _todoJob.DoJob();
+
             string endmessage = $"RunTask Lan: {count}  end  at {DateTime.Now}";
             _logger.LogInformation(endmessage);
             //xac dinh thoi diem chay 1 lan sau khi task run
