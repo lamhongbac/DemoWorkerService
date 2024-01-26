@@ -67,6 +67,18 @@ namespace DemoWorkerService
         /// 
         /// Gia dinh la ngay bat dau va ket thuc thoa man dieu kien
         /// BeginData-EndDate
+        /// Cac buoc se nhu sau
+        /// 
+        /// b1 xac dinh thoi diem chay lan 1/A
+        /// b2 xac dinh countdown(b1)
+        /// b3 doi den khi count down <0
+        /// b4 chay lan thu 1
+        /// b5 xac dinh thoi diem chay lan 2/1
+        /// b6 xac dinh countdown(b6)
+        /// b7 quay lai b3
+        /// b8 chay lan 2/2
+        /// b9 quay lai b6
+        /// b10 chay lan 2/3
         /// 
         /// </summary>
         /// <param name="stoppingToken"></param>
@@ -104,7 +116,7 @@ namespace DemoWorkerService
                 
                 if (countdown-- <= 0)
                 {
-                    count++;
+                   
                     await RunTask(stoppingToken);
 
                     firstRun=false;
@@ -164,13 +176,32 @@ namespace DemoWorkerService
         /// <returns></returns>
         private async Task RunTask(CancellationToken stoppingToken)
         {
-            string begmessage = $"RunTask Lan: {count} begin  at {DateTime.Now}";
+            count++;
+            string begmessage; string endmessage;
+
+            if (count == 1)
+            {
+                begmessage = $"RunTask Lan  {count} begin  at {DateTime.Now}";
+            }
+            else
+            {
+                begmessage = $"RunTask Lan 2/ {count-1} begin  at {DateTime.Now}";
+            }
+            
             _logger.LogInformation(begmessage);
 
             //await Task.Delay(1000, stoppingToken);
             await _todoJob.DoJob();
+            if (count == 1)
+            {
+                 endmessage = $"End runTask Lan: {count},    at {DateTime.Now}";
+            }
+            else
+            {
+                endmessage = $"End runTask Lan: 2/{count-1},    at {DateTime.Now}";
+            }
 
-            string endmessage = $"RunTask Lan: {count}  end  at {DateTime.Now}";
+            
             _logger.LogInformation(endmessage);
             //xac dinh thoi diem chay 1 lan sau khi task run
 
