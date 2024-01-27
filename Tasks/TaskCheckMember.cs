@@ -45,9 +45,12 @@ namespace DemoWorkerService.Tasks
 
                 if (configStartAt < DateTime.Now)
                 {
-                    startAt = GetNextStart(startAt, repeatedType, interval);
+                    startAt = GetNextStart(configStartAt, repeatedType, interval);
                 }
-
+                else
+                {
+                    startAt = configStartAt;
+                }
                 interval = task.RepeatInterval;
 
 

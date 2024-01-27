@@ -22,17 +22,17 @@ namespace DemoWorkerService.Jobs
         public async Task DoJob()
         {
             count++;
-            string beginTask = $"Begin job at: {DateTime.Now}-count: {count}";
+            //string beginTask = $"Begin job at: {DateTime.Now}-count: {count}";
 
-            string task1 = $"Backup data 1";
-            string task2 = $"Backup data 2";
-            string task3 = $"Cleaning task";
-            _logger.LogInformation(beginTask);
-            _logger.LogInformation(task1);
-            _logger.LogInformation(task2);
-            _logger.LogInformation(task3);
+            //string task1 = $"Backup data 1";
+            //string task2 = $"Backup data 2";
+            //string task3 = $"Cleaning task";
+            //_logger.LogInformation(beginTask);
+            //_logger.LogInformation(task1);
+            //_logger.LogInformation(task2);
+            //_logger.LogInformation(task3);
 
-            //task keo dai 2 phut
+            ////task keo dai 2 phut
             await Task.Delay(20000);
             string endTask = $"End job at: {DateTime.Now}-count: {count}";
             _logger.LogInformation(endTask);
