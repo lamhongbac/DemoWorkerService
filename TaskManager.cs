@@ -38,7 +38,7 @@ namespace DemoWorkerService
         public string StartAt { get; set; } //thoi diem chay task
         public string EndDate { get; set; } //ngay ket thuc
 
-        public string ToDoJob { get; set; }
+        public string ToDoJob { get; set; } //JobID
 
         public DateTime GetBeginDate(string type)
         {

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Eventing.Reader;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,12 +14,12 @@ namespace DemoWorkerService.Tasks
     /// <summary>
     /// Gia su cu 30 phut kiem tra data sale 1 lan
     /// </summary>
-    public class BaseTask : BackgroundService
+    public class BaseTask<IJob> :BackgroundService
     {
         bool taskAvailable = false;
         static int count = 0;
         static bool firstRun = true;
-        private readonly ILogger<BaseTask> _logger;
+        private readonly ILogger<BaseTask<IJob>> _logger;
         static DateTime runAt;
         static DateTime startAt;
         IConfiguration _configuration;
@@ -26,7 +27,8 @@ namespace DemoWorkerService.Tasks
         static TaskConfiguration task;
         ERepeatedType repeatedType;
         IJob _todoJob;
-        public BaseTask(ILogger<BaseTask> logger, IConfiguration configuration, IJob job)
+        public BaseTask(ILogger<BaseTask<IJob>> logger, 
+            IConfiguration configuration, IJob job)
         {
             _todoJob = job;
             _logger = logger;
@@ -35,7 +37,7 @@ namespace DemoWorkerService.Tasks
             //
             List<TaskConfiguration> configurations = taskSection.Get<List<TaskConfiguration>>();
             //
-            task = configurations.FirstOrDefault(x => x.ToDoJob == job.JobID);
+            task = configurations.FirstOrDefault(x => x.ToDoJob == _todoJob.ToString());
             taskAvailable = task != null;
             if (taskAvailable)
             {
@@ -68,6 +70,8 @@ namespace DemoWorkerService.Tasks
                 _logger.LogError(init_message);
             }
         }
+
+       
         /// <summary>
         /// 
         /// Gia dinh la ngay bat dau va ket thuc thoa man dieu kien
@@ -88,19 +92,9 @@ namespace DemoWorkerService.Tasks
         /// </summary>
         /// <param name="stoppingToken"></param>
         /// <returns></returns>
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override  async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            if (!taskAvailable)
-            {
-                return;
-            }
-            //thoi diem chay trng cau hinh truoc thoi diem service start=> move thoi diem chay qua ngay Hom sau
-            // neu thoi diem chay tron CH xay ra sau TDiem hien tai
-            if (firstRun)
-                runAt = startAt;
-            //0:
-            string runAtmessage = $"Start ExecuteAsync; count=:{count} ,runAt at: {runAt}";
-            _logger.LogInformation(runAtmessage);
+            PreExecuteAsync();
 
             // gia su kQ la 4g...
             while (!stoppingToken.IsCancellationRequested)
@@ -128,7 +122,21 @@ namespace DemoWorkerService.Tasks
                 }
             }
         }
+        public void PreExecuteAsync()
+        {
+            if (!taskAvailable)
+            {
+                return;
+            }
+            //thoi diem chay trng cau hinh truoc thoi diem service start=> move thoi diem chay qua ngay Hom sau
+            // neu thoi diem chay tron CH xay ra sau TDiem hien tai
+            if (firstRun)
+                runAt = startAt;
+            //0:
+            string runAtmessage = $"Start ExecuteAsync; count=:{count} ,runAt at: {runAt}";
+            _logger.LogInformation(runAtmessage);
 
+        }
         /// <summary>
         /// neu la daily task, bi tre thi chuyen qua x ngay hom sau
         /// neu la hourly task bi tre thi chuyen qua x gio sau
@@ -161,35 +169,53 @@ namespace DemoWorkerService.Tasks
         /// <returns></returns>
         private async Task RunTask(CancellationToken stoppingToken)
         {
-            count++;
-            string begmessage; string endmessage;
+            var countdown = SecondsUntilFireTime(runAt);
+            //string countdown_message = $"Calcualte firetime Lan: {count}  end  at {DateTime.Now}: {countdown}";
+            //_logger.LogInformation(countdown_message);
 
-            if (count == 1)
+            if (countdown-- <= 0)
             {
-                begmessage = $"RunTask Lan  {count} begin  at {DateTime.Now}";
-            }
-            else
-            {
-                begmessage = $"RunTask Lan 2/ {count - 1} begin  at {DateTime.Now}";
-            }
 
-            _logger.LogInformation(begmessage);
 
-            //await Task.Delay(1000, stoppingToken);
-            await _todoJob.DoJob();
-            if (count == 1)
-            {
-                endmessage = $"End runTask Lan: {count},    at {DateTime.Now}";
+
+
+
+                runAt = GetNextStart(startAt, repeatedType, interval);
+
+
+
+
+
+                count++;
+                string begmessage; string endmessage;
+
+                if (count == 1)
+                {
+                    begmessage = $"RunTask Lan  {count} begin  at {DateTime.Now}";
+                }
+                else
+                {
+                    begmessage = $"RunTask Lan 2/ {count - 1} begin  at {DateTime.Now}";
+                }
+
+                _logger.LogInformation(begmessage);
+
+                //await Task.Delay(1000, stoppingToken);
+                await _todoJob.DoJob();
+                if (count == 1)
+                {
+                    endmessage = $"End runTask Lan: {count},    at {DateTime.Now}";
+                }
+                else
+                {
+                    endmessage = $"End runTask Lan: 2/{count - 1},    at {DateTime.Now}";
+                }
+                if (firstRun)
+                    firstRun = false;
+
+                _logger.LogInformation(endmessage);
+                //xac dinh thoi diem chay 1 lan sau khi task run
             }
-            else
-            {
-                endmessage = $"End runTask Lan: 2/{count - 1},    at {DateTime.Now}";
-            }
-
-            firstRun = false;
-            _logger.LogInformation(endmessage);
-            //xac dinh thoi diem chay 1 lan sau khi task run
-
         }
 
         /// <summary>
