@@ -25,12 +25,12 @@ namespace DemoWorkerService
         static TaskConfiguration task;
         ERepeatedType repeatedType;
         IJob _todoJob;
-        public MinuteTask(ILogger<MinuteTask> logger,IConfiguration configuration, IJob job)
+        public MinuteTask(ILogger<MinuteTask> logger, IConfiguration configuration, IJob job)
         {
             _todoJob = job;
             _logger = logger;
-            _configuration= configuration;
-            var taskSection=configuration.GetSection("ScheduleTasks");
+            _configuration = configuration;
+            var taskSection = configuration.GetSection("ScheduleTasks");
             //
             List<TaskConfiguration> configurations = taskSection.Get<List<TaskConfiguration>>();
             //
@@ -43,18 +43,22 @@ namespace DemoWorkerService
                 //from config: gia su la 15h:00
                 TimeSpan timeSpan = task.GetStartAt();
 
-#if DEBUG
-                startAt = DateTime.Now.AddMinutes(1);
-#else
-                        startAt = DateTime.Today.AddTicks(timeSpan.Ticks);
-#endif
 
-                        interval = task.RepeatInterval; 
+                DateTime configStartAt = DateTime.Today.AddTicks(timeSpan.Ticks);
+                //hardcode startAt
+                configStartAt = DateTime.Now.AddSeconds(-10);
 
+                if (configStartAt < DateTime.Now)
+                {
+                    startAt = GetNextStart(startAt, repeatedType, interval);
+                }
+
+                interval = task.RepeatInterval;
+               
 
                 // sau 1 p chay 1 lan
 
-                string init_message = $"Init... task startAt: {startAt}  repeatedType: {repeatedType},interval: {interval}";
+                string init_message = $"Constructor... configured start at {configStartAt}, actual startAt: {startAt}  repeatedType: {repeatedType},interval: {interval}";
                 _logger.LogInformation(init_message);
             }
             else
@@ -85,21 +89,13 @@ namespace DemoWorkerService
         /// <returns></returns>
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-           
-                //thoi diem chay trng cau hinh truoc thoi diem service start=> move thoi diem chay qua ngay Hom sau
-                // neu thoi diem chay tron CH xay ra sau TDiem hien tai
-                if (startAt > DateTime.Now)
-                {
-                    runAt = startAt;
-                
-                }
-                else
-                {
-                    //xac dinh lan chay dau tien
-                    runAt = GetNextStart(startAt,repeatedType,interval);
-                
-                }
-            string runAtmessage = $"lan:{count} ,start at: {runAt}";
+          
+            //thoi diem chay trng cau hinh truoc thoi diem service start=> move thoi diem chay qua ngay Hom sau
+            // neu thoi diem chay tron CH xay ra sau TDiem hien tai
+            if (firstRun)
+                runAt = startAt;
+            //0:
+            string runAtmessage = $"Start ExecuteAsync; count=:{count} ,runAt at: {runAt}";
             _logger.LogInformation(runAtmessage);
 
             // gia su kQ la 4g...
@@ -113,31 +109,16 @@ namespace DemoWorkerService
                 //string countdown_message = $"Calcualte firetime Lan: {count}  end  at {DateTime.Now}: {countdown}";
                 //_logger.LogInformation(countdown_message);
 
-                
                 if (countdown-- <= 0)
                 {
-                   
+
                     await RunTask(stoppingToken);
 
-                    firstRun=false;
-                    //lan chay ke tiep tang them xxx ke tu lan chay truoc do
-                    if (!firstRun)
-                    {
-                        switch (repeatedType)
-                        {
-                            case ERepeatedType.Minute:
-                                runAt = runAt.AddMinutes(interval);
-                                break;
-                            case ERepeatedType.Hourly:
-                                runAt = runAt.AddHours(interval);
-                                break;
-                            case ERepeatedType.Daily:
-                                runAt = runAt.AddDays(interval);
-                                break;
-                            
-                        }
-                        
-                    }
+
+
+                    runAt = GetNextStart(startAt, repeatedType, interval);
+
+
 
 
                 }
@@ -150,20 +131,20 @@ namespace DemoWorkerService
         /// neu la minute ...
         /// </summary>
         /// <returns></returns>
-        private DateTime GetNextStart(DateTime configDate,ERepeatedType repeatedType, int interval)
+        private DateTime GetNextStart(DateTime prevTime,ERepeatedType repeatedType, int interval)
         {
             DateTime runAt=DateTime.MinValue;
             switch (repeatedType)
             {
                 case ERepeatedType.Minute:
-                    runAt = configDate.AddMinutes(interval);
+                    runAt = prevTime.AddMinutes(interval);
                     break;
                 case ERepeatedType.Hourly:
-                    runAt = configDate.AddHours(interval);
+                    runAt = prevTime.AddHours(interval);
                     break;
                 case ERepeatedType.Daily:                                      
                 default:
-                    runAt = configDate.AddDays(interval);
+                    runAt = prevTime.AddDays(interval);
                     break;
             }
            return runAt;
@@ -201,7 +182,7 @@ namespace DemoWorkerService
                 endmessage = $"End runTask Lan: 2/{count-1},    at {DateTime.Now}";
             }
 
-            
+            firstRun = false;
             _logger.LogInformation(endmessage);
             //xac dinh thoi diem chay 1 lan sau khi task run
 

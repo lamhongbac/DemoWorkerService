@@ -7,8 +7,9 @@ using NLog;
 using NLog.Extensions.Logging;
 using NLog.Web;
 
+var logger = LogManager.GetCurrentClassLogger();
 
-var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
+//var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
 logger.Debug("init main");
 try
 {
@@ -23,10 +24,10 @@ try
     //    logging.AddNLog(hostContext.Configuration.GetSection("NLog"));
     //});
 
-    //builder.Logging.ClearProviders();
-    
+
+
     builder.Logging.ClearProviders();
-    builder.Logging.AddConsole();
+
     builder.Logging.AddConsole();
     builder.Logging.AddDebug();
     builder.Logging.AddEventSourceLogger();

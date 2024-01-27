@@ -20,14 +20,21 @@ namespace DemoWorkerService.Jobs
         }
         public async Task DoJob()
         {
-            string task1 = $"Starting...{DateTime.Now}-{count}-times, scan for new members";
+            count++;
+            string beginTask = $"Begin job at: {DateTime.Now}-count: {count}";
+            
+            string task1 = $"Scan for new members";
             string task2 = "Create promtion transaction for each mem";
             string task3 = "Send notification promtion to each mem";
+            _logger.LogInformation(beginTask);
             _logger.LogInformation(task1);
             _logger.LogInformation(task2);
             _logger.LogInformation(task3);
+
             //task keo dai 2 second
             await Task.Delay(2000);
+            string endTask = $"End job at: {DateTime.Now}-count: {count}";
+            _logger.LogInformation(endTask);
         }
     }
 }
