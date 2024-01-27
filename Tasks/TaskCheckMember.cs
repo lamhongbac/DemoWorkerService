@@ -1,31 +1,26 @@
 ﻿using DemoWorkerService.Jobs;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml;
 
-namespace DemoWorkerService
+namespace DemoWorkerService.Tasks
 {
-    /// <summary>
-    /// Gia su cu 30 phut kiem tra data sale 1 lan
-    /// </summary>
-    public class MinuteTask : BackgroundService
+    public class TaskCheckMember : BackgroundService
     {
         bool taskAvailable = false;
         static int count = 0;
-        static bool firstRun=true;
-        private readonly ILogger<MinuteTask> _logger;
+        static bool firstRun = true;
+        private readonly ILogger<TaskCheckMember> _logger;
         static DateTime runAt;
         static DateTime startAt;
         IConfiguration _configuration;
         int interval = 2;
         static TaskConfiguration task;
         ERepeatedType repeatedType;
-        IJob _todoJob;
-        public MinuteTask(ILogger<MinuteTask> logger, IConfiguration configuration, IJob job)
+        CheckNewMember _todoJob;
+        public TaskCheckMember(ILogger<TaskCheckMember> logger, IConfiguration configuration, CheckNewMember job)
         {
             _todoJob = job;
             _logger = logger;
@@ -38,7 +33,7 @@ namespace DemoWorkerService
             taskAvailable = task != null;
             if (taskAvailable)
             {
-                bool ok = Enum.TryParse<ERepeatedType>(task.RepeatedType, out repeatedType);
+                bool ok = Enum.TryParse(task.RepeatedType, out repeatedType);
 
                 //from config: gia su la 15h:00
                 TimeSpan timeSpan = task.GetStartAt();
@@ -54,7 +49,7 @@ namespace DemoWorkerService
                 }
 
                 interval = task.RepeatInterval;
-               
+
 
                 // sau 1 p chay 1 lan
 
@@ -89,7 +84,10 @@ namespace DemoWorkerService
         /// <returns></returns>
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-          
+            if (!taskAvailable)
+            {
+                return;
+            }
             //thoi diem chay trng cau hinh truoc thoi diem service start=> move thoi diem chay qua ngay Hom sau
             // neu thoi diem chay tron CH xay ra sau TDiem hien tai
             if (firstRun)
@@ -131,9 +129,9 @@ namespace DemoWorkerService
         /// neu la minute ...
         /// </summary>
         /// <returns></returns>
-        private DateTime GetNextStart(DateTime prevTime,ERepeatedType repeatedType, int interval)
+        private DateTime GetNextStart(DateTime prevTime, ERepeatedType repeatedType, int interval)
         {
-            DateTime runAt=DateTime.MinValue;
+            DateTime runAt = DateTime.MinValue;
             switch (repeatedType)
             {
                 case ERepeatedType.Minute:
@@ -142,12 +140,12 @@ namespace DemoWorkerService
                 case ERepeatedType.Hourly:
                     runAt = prevTime.AddHours(interval);
                     break;
-                case ERepeatedType.Daily:                                      
+                case ERepeatedType.Daily:
                 default:
                     runAt = prevTime.AddDays(interval);
                     break;
             }
-           return runAt;
+            return runAt;
         }
 
         /// <summary>
@@ -166,20 +164,20 @@ namespace DemoWorkerService
             }
             else
             {
-                begmessage = $"RunTask Lan 2/ {count-1} begin  at {DateTime.Now}";
+                begmessage = $"RunTask Lan 2/ {count - 1} begin  at {DateTime.Now}";
             }
-            
+
             _logger.LogInformation(begmessage);
 
             //await Task.Delay(1000, stoppingToken);
             await _todoJob.DoJob();
             if (count == 1)
             {
-                 endmessage = $"End runTask Lan: {count},    at {DateTime.Now}";
+                endmessage = $"End runTask Lan: {count},    at {DateTime.Now}";
             }
             else
             {
-                endmessage = $"End runTask Lan: 2/{count-1},    at {DateTime.Now}";
+                endmessage = $"End runTask Lan: 2/{count - 1},    at {DateTime.Now}";
             }
 
             firstRun = false;
@@ -198,8 +196,10 @@ namespace DemoWorkerService
         private static int SecondsUntilFireTime(DateTime runAt)
         {
             int totalSecondFromFireTime = (int)(runAt - DateTime.Now).TotalSeconds;
-          
+
             return totalSecondFromFireTime;
         }
     }
+
+
 }

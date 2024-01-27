@@ -1,5 +1,6 @@
 using DemoWorkerService;
 using DemoWorkerService.Jobs;
+using DemoWorkerService.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -33,8 +34,12 @@ try
     builder.Logging.AddEventSourceLogger();
     builder.Logging.AddNLog();
 
-    builder.Services.AddSingleton<IJob,CheckNewMember>();
-    builder.Services.AddHostedService<MinuteTask>();
+    builder.Services.AddSingleton<CheckNewMember>();
+    builder.Services.AddSingleton< BackUpData>();
+
+    //builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
+    builder.Services.AddHostedService<TaskCheckMember>();
+    builder.Services.AddHostedService<TaskBackup>();
 
     var host = builder.Build();
     host.Run();
