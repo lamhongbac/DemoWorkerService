@@ -33,13 +33,16 @@ try
     builder.Logging.AddDebug();
     builder.Logging.AddEventSourceLogger();
     builder.Logging.AddNLog();
+    
+    builder.Services.AddScoped<IScopeJob,ScopeJob>();
 
-    builder.Services.AddSingleton<CheckNewMember>();
-    builder.Services.AddSingleton< BackUpData>();
+
+   // builder.Services.AddSingleton<CheckNewMember>();
+   // builder.Services.AddSingleton< BackUpData>();
 
     //builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
-    builder.Services.AddHostedService<TaskCheckMember>();
-    builder.Services.AddHostedService<TaskBackup>();
+    builder.Services.AddHostedService<BackGroundWithScope>();
+    //builder.Services.AddHostedService<TaskBackup>();
 
     var host = builder.Build();
     host.Run();

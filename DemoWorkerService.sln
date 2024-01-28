@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34408.163
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemoWorkerService", "DemoWorkerService.csproj", "{CB434A76-086C-43A4-8D40-B2A5D7AAD679}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DemoWorkerService", "DemoWorkerService.csproj", "{CB434A76-086C-43A4-8D40-B2A5D7AAD679}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeriodTimerApp", "..\PeriodTimerApp\PeriodTimerApp.csproj", "{93C46436-25C7-49C6-9D0F-0D5DB40C6776}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{CB434A76-086C-43A4-8D40-B2A5D7AAD679}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CB434A76-086C-43A4-8D40-B2A5D7AAD679}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CB434A76-086C-43A4-8D40-B2A5D7AAD679}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93C46436-25C7-49C6-9D0F-0D5DB40C6776}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93C46436-25C7-49C6-9D0F-0D5DB40C6776}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93C46436-25C7-49C6-9D0F-0D5DB40C6776}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93C46436-25C7-49C6-9D0F-0D5DB40C6776}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

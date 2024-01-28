@@ -7,16 +7,20 @@ using System.Threading.Tasks;
 
 namespace DemoWorkerService.Tasks
 {
+    /// <summary>
+    /// Mo phong task backup
+    /// 
+    /// </summary>
     public class TaskBackup : BackgroundService
     {
         bool taskAvailable = false;
         static int count = 0;
         static bool firstRun = true;
         private readonly ILogger<TaskBackup> _logger;
-        static DateTime runAt;
+        static DateTime nextRun;
         static DateTime startAt;
         IConfiguration _configuration;
-        int interval = 2;
+       
         static TaskConfiguration task;
         ERepeatedType repeatedType;
         BackUpData _todoJob;
@@ -30,7 +34,9 @@ namespace DemoWorkerService.Tasks
             List<TaskConfiguration> configurations = taskSection.Get<List<TaskConfiguration>>();
             //
             task = configurations.FirstOrDefault(x => x.ToDoJob == job.JobID);
-            taskAvailable = task != null;
+
+            taskAvailable = task != null && task.IsStart;
+
             if (taskAvailable)
             {
                 bool ok = Enum.TryParse(task.RepeatedType, out repeatedType);
@@ -41,23 +47,23 @@ namespace DemoWorkerService.Tasks
 
                 DateTime configStartAt = DateTime.Today.AddTicks(timeSpan.Ticks);
                 //hardcode startAt
-                configStartAt = DateTime.Now.AddSeconds(10);
+                configStartAt = DateTime.Now.AddSeconds(-10);
 
                 if (configStartAt < DateTime.Now)
                 {
-                    startAt = GetNextStart(configStartAt, repeatedType, interval);
+                    startAt = GetNextStart(configStartAt);
                 }
                 else
                 {
                     startAt = configStartAt;
                 }
 
-                interval = task.RepeatInterval;
+               
 
 
                 // sau 1 p chay 1 lan
 
-                string init_message = $"Constructor... configured start at {configStartAt}, actual startAt: {startAt}  repeatedType: {repeatedType},interval: {interval}";
+                string init_message = $"Constructor... configured start at {configStartAt}, actual startAt: {startAt}  repeatedType: {repeatedType},interval: {task.RepeatInterval}";
                 _logger.LogInformation(init_message);
             }
             else
@@ -95,9 +101,9 @@ namespace DemoWorkerService.Tasks
             //thoi diem chay trng cau hinh truoc thoi diem service start=> move thoi diem chay qua ngay Hom sau
             // neu thoi diem chay tron CH xay ra sau TDiem hien tai
             if (firstRun)
-                runAt = startAt;
+                nextRun = startAt;
             //0:
-            string runAtmessage = $"Start ExecuteAsync; count=:{count} ,runAt at: {runAt}";
+            string runAtmessage = $"Start ExecuteAsync; count=:{count} ,runAt at: {nextRun}";
             _logger.LogInformation(runAtmessage);
 
             // gia su kQ la 4g...
@@ -107,22 +113,14 @@ namespace DemoWorkerService.Tasks
                 //count down :Xac dinh TG can phai chờ theo cấu hình ex:hien dang la 3g, KQ tra ra 10, nghia la dang o thoi diem 2g59p50s no se countdown xuong 10 second de bat dau chay
                 //count down se giam xuong moi lan chay  Datetime.Now tang len, trong khi RunAt thi co dinh
 
-                var countdown = SecondsUntilFireTime(runAt);
+                var countdown = SecondsUntilFireTime(nextRun);
                 //string countdown_message = $"Calcualte firetime Lan: {count}  end  at {DateTime.Now}: {countdown}";
                 //_logger.LogInformation(countdown_message);
 
                 if (countdown-- <= 0)
                 {
-
                     await RunTask(stoppingToken);
-
-
-
-                    runAt = GetNextStart(startAt, repeatedType, interval);
-
-
-
-
+                    nextRun = GetNextStart(startAt);
                 }
             }
         }
@@ -133,20 +131,20 @@ namespace DemoWorkerService.Tasks
         /// neu la minute ...
         /// </summary>
         /// <returns></returns>
-        private DateTime GetNextStart(DateTime prevTime, ERepeatedType repeatedType, int interval)
+        private DateTime GetNextStart(DateTime prevTime)
         {
             DateTime runAt = DateTime.MinValue;
             switch (repeatedType)
             {
                 case ERepeatedType.Minute:
-                    runAt = prevTime.AddMinutes(interval);
+                    runAt = prevTime.AddMinutes(task.RepeatInterval);
                     break;
                 case ERepeatedType.Hourly:
-                    runAt = prevTime.AddHours(interval);
+                    runAt = prevTime.AddHours(task.RepeatInterval);
                     break;
                 case ERepeatedType.Daily:
                 default:
-                    runAt = prevTime.AddDays(interval);
+                    runAt = prevTime.AddDays(task.RepeatInterval);
                     break;
             }
             return runAt;

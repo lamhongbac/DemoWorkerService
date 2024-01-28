@@ -30,8 +30,9 @@ namespace DemoWorkerService
     {
         public TaskConfiguration()
         {
-            
+            IsStart = true;
         }
+        public bool IsStart { get; set; }
         public string BeginDate { get; set; } //ngay bat dau
         public string RepeatedType { get; set; } //minutely, hourly, daily, weekly, monthly
         public int RepeatInterval { get; set; } //30p, 22g, 1day, 1week

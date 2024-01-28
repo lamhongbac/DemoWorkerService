@@ -14,12 +14,12 @@ namespace DemoWorkerService.Tasks
     /// <summary>
     /// Gia su cu 30 phut kiem tra data sale 1 lan
     /// </summary>
-    public class BaseTask<IJob> :BackgroundService
+    public class BaseTask :BackgroundService
     {
         bool taskAvailable = false;
         static int count = 0;
         static bool firstRun = true;
-        private readonly ILogger<BaseTask<IJob>> _logger;
+        private readonly ILogger<BaseTask> _logger;
         static DateTime runAt;
         static DateTime startAt;
         IConfiguration _configuration;
@@ -27,7 +27,7 @@ namespace DemoWorkerService.Tasks
         static TaskConfiguration task;
         ERepeatedType repeatedType;
         IJob _todoJob;
-        public BaseTask(ILogger<BaseTask<IJob>> logger, 
+        public BaseTask(ILogger<BaseTask> logger, 
             IConfiguration configuration, IJob job)
         {
             _todoJob = job;
