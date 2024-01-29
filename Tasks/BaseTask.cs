@@ -11,9 +11,7 @@ using System.Xml;
 
 namespace DemoWorkerService.Tasks
 {
-    /// <summary>
-    /// Gia su cu 30 phut kiem tra data sale 1 lan
-    /// </summary>
+    
     public class BaseTask :BackgroundService
     {
         bool taskAvailable = false;
@@ -53,7 +51,7 @@ namespace DemoWorkerService.Tasks
 
                 if (configStartAt < DateTime.Now)
                 {
-                    startAt = GetNextStart(startAt, repeatedType, interval);
+                    startAt = GetNextStart(startAt);
                 }
 
                 interval = task.RepeatInterval;
@@ -114,7 +112,7 @@ namespace DemoWorkerService.Tasks
 
 
 
-                    runAt = GetNextStart(startAt, repeatedType, interval);
+                    runAt = GetNextStart(startAt);
 
 
 
@@ -143,20 +141,20 @@ namespace DemoWorkerService.Tasks
         /// neu la minute ...
         /// </summary>
         /// <returns></returns>
-        private DateTime GetNextStart(DateTime prevTime, ERepeatedType repeatedType, int interval)
+        private DateTime GetNextStart(DateTime prevTime)
         {
             DateTime runAt = DateTime.MinValue;
             switch (repeatedType)
             {
                 case ERepeatedType.Minute:
-                    runAt = prevTime.AddMinutes(interval);
+                    runAt = prevTime.AddMinutes(task.RepeatInterval);
                     break;
                 case ERepeatedType.Hourly:
-                    runAt = prevTime.AddHours(interval);
+                    runAt = prevTime.AddHours(task.RepeatInterval);
                     break;
                 case ERepeatedType.Daily:
                 default:
-                    runAt = prevTime.AddDays(interval);
+                    runAt = prevTime.AddDays(task.RepeatInterval);
                     break;
             }
             return runAt;
@@ -180,7 +178,7 @@ namespace DemoWorkerService.Tasks
 
 
 
-                runAt = GetNextStart(startAt, repeatedType, interval);
+                runAt = GetNextStart(startAt);
 
 
 

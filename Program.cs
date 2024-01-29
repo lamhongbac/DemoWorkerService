@@ -34,14 +34,16 @@ try
     builder.Logging.AddEventSourceLogger();
     builder.Logging.AddNLog();
     
-    builder.Services.AddScoped<IScopeJob,ScopeJob>();
+    //builder.Services.AddScoped<IScopeJob,ScopeJob>();
 
 
    // builder.Services.AddSingleton<CheckNewMember>();
-   // builder.Services.AddSingleton< BackUpData>();
+    
+    builder.Services.AddSingleton<BackUpData>();
+    builder.Services.AddHostedService<TimerScheduler>();
 
     //builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
-    builder.Services.AddHostedService<BackGroundWithScope>();
+    //builder.Services.AddHostedService<BackGroundWithScope>();
     //builder.Services.AddHostedService<TaskBackup>();
 
     var host = builder.Build();
