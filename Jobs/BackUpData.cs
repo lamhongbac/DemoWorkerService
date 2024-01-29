@@ -22,7 +22,7 @@ namespace DemoWorkerService.Jobs
         public async Task DoJob()
         {
             count++;
-            //string beginTask = $"Begin job at: {DateTime.Now}-count: {count}";
+            string beginTask = $"Begin job backupdata at: {DateTime.Now}-count: {count}";
 
             //string task1 = $"Backup data 1";
             //string task2 = $"Backup data 2";
@@ -34,7 +34,7 @@ namespace DemoWorkerService.Jobs
 
             ////task keo dai 2 phut
             await Task.Delay(20000);
-            string endTask = $"End job at: {DateTime.Now}-count: {count}";
+            string endTask = $"End job backupdata at: {DateTime.Now}-count: {count}";
             _logger.LogInformation(endTask);
         }
     }

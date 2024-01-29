@@ -39,7 +39,7 @@ namespace DemoWorkerService.Tasks
            
             var taskSection = configuration.GetSection("ScheduleTasks");
             List<TaskConfiguration> configurations = taskSection.Get<List<TaskConfiguration>>();
-            taskConfig = configurations.FirstOrDefault(x => x.ToDoJob == _todoJob.ToString());
+            taskConfig = configurations.FirstOrDefault(x => x.ToDoJob == _todoJob.JobID);
             ERepeatedType repeatedType;
             startTimeConfig = taskConfig.GetStartAt();
           int  interval = taskConfig.RepeatInterval;
@@ -48,7 +48,7 @@ namespace DemoWorkerService.Tasks
 
             if (configStartAt < DateTime.Now)
             {
-                startAt = GetNextStart(startAt);
+                startAt = GetNextStart(configStartAt);
             }
             else
             {
@@ -82,25 +82,21 @@ namespace DemoWorkerService.Tasks
 
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
+          string  begmessage = $"ExecuteAsync  at {DateTime.Now}";
+            _logger.LogInformation(begmessage);
             while (!stoppingToken.IsCancellationRequested)
             {
                 //first run chay theo config time
                 if (isFirstRun)
-                {
-                  
+                {                  
                     var countdown = SecondsUntilFireTime(startAt);
                     //string countdown_message = $"Calcualte firetime Lan: {count}  end  at {DateTime.Now}: {countdown}";
                     //_logger.LogInformation(countdown_message);
 
                     if (countdown-- <= 0)
                     {
-
                         await RunTask();
-
-
-
-                    }
-                    
+                    }                    
                 }
                 else
                 {
