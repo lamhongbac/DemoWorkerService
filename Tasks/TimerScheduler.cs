@@ -157,23 +157,32 @@ namespace DemoWorkerService.Tasks
         private DateTime GetStartDateTime(DateTime configStartDateTime)
         {
             DateTime runAt = configStartDateTime;
-
-            while (runAt<DateTime.Now)
+            if (configStartDateTime > DateTime.Now)
             {
-                switch (repeatedType)
-                {
-                    case ERepeatedType.Minute:
-                        runAt = configStartDateTime.AddMinutes(taskConfig.RepeatInterval);
-                        break;
-                    case ERepeatedType.Hourly:
-                        runAt = configStartDateTime.AddHours(taskConfig.RepeatInterval);
-                        break;
-                    case ERepeatedType.Daily:
-                    default:
-                        runAt = configStartDateTime.AddDays(taskConfig.RepeatInterval);
-                        break;
-                }
+                return runAt;
             }
+            else
+            {
+                runAt = DateTime.Now;
+            }
+
+
+
+
+            switch (repeatedType)
+            {
+                case ERepeatedType.Minute:
+                    runAt = configStartDateTime.AddMinutes(taskConfig.RepeatInterval);
+                    break;
+                case ERepeatedType.Hourly:
+                    runAt = configStartDateTime.AddHours(taskConfig.RepeatInterval);
+                    break;
+                case ERepeatedType.Daily:
+                default:
+                    runAt = configStartDateTime.AddDays(taskConfig.RepeatInterval);
+                    break;
+            }
+
             return runAt;
         }
 
