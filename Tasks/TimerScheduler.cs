@@ -140,6 +140,12 @@ namespace DemoWorkerService.Tasks
                
             
         }
+        /// <summary>
+        /// viet lai cai nay vi add lan dau co the van nho hon DateTime Now
+        /// can so sanh RunAt voi DateTime.Now
+        /// </summary>
+        /// <param name="prevTime"></param>
+        /// <returns></returns>
         private DateTime GetNextStart(DateTime prevTime)
         {
             DateTime runAt = DateTime.MinValue;
