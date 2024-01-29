@@ -45,19 +45,27 @@ namespace DemoWorkerService.Tasks
           int  interval = taskConfig.RepeatInterval;
 
             DateTime configStartAt = DateTime.Today.AddTicks(startTimeConfig.Ticks);
+            string begmessage = $"Configuration StartAt  at {configStartAt}";
+            _logger.LogInformation(begmessage);
 
             if (configStartAt < DateTime.Now)
             {
-                startAt = GetNextStart(configStartAt);
+                startAt = GetStartDateTime(configStartAt);
             }
             else
             {
                 startAt = configStartAt;
-            }    
+            }
+             begmessage = $"processing calculate actual start at {startAt}";
+            _logger.LogInformation(begmessage);
 
             bool ok = Enum.TryParse(taskConfig.RepeatedType, out repeatedType);
+            
+            TimeSpan period = GetPediod();
+            begmessage = $"Interval period in minutes {period.TotalMinutes}";
+            _logger.LogInformation(begmessage);
 
-            _timer = new PeriodicTimer(GetPediod());
+            _timer = new PeriodicTimer(period);
         }
 
         private TimeSpan GetPediod()
@@ -144,23 +152,27 @@ namespace DemoWorkerService.Tasks
         /// viet lai cai nay vi add lan dau co the van nho hon DateTime Now
         /// can so sanh RunAt voi DateTime.Now
         /// </summary>
-        /// <param name="prevTime"></param>
+        /// <param name="configStartDateTime"></param>
         /// <returns></returns>
-        private DateTime GetNextStart(DateTime prevTime)
+        private DateTime GetStartDateTime(DateTime configStartDateTime)
         {
-            DateTime runAt = DateTime.MinValue;
-            switch (repeatedType)
+            DateTime runAt = configStartDateTime;
+
+            while (runAt<DateTime.Now)
             {
-                case ERepeatedType.Minute:
-                    runAt = prevTime.AddMinutes(taskConfig.RepeatInterval);
-                    break;
-                case ERepeatedType.Hourly:
-                    runAt = prevTime.AddHours(taskConfig.RepeatInterval);
-                    break;
-                case ERepeatedType.Daily:
-                default:
-                    runAt = prevTime.AddDays(taskConfig.RepeatInterval);
-                    break;
+                switch (repeatedType)
+                {
+                    case ERepeatedType.Minute:
+                        runAt = configStartDateTime.AddMinutes(taskConfig.RepeatInterval);
+                        break;
+                    case ERepeatedType.Hourly:
+                        runAt = configStartDateTime.AddHours(taskConfig.RepeatInterval);
+                        break;
+                    case ERepeatedType.Daily:
+                    default:
+                        runAt = configStartDateTime.AddDays(taskConfig.RepeatInterval);
+                        break;
+                }
             }
             return runAt;
         }
